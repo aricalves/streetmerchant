@@ -14,15 +14,13 @@ export function sendSlackMessage(link: Link, store: Store) {
 
 		(async () => {
 			const givenUrl = link.cartUrl ? link.cartUrl : link.url;
+			const text = `${Print.inStock(link, store)}\n${givenUrl}`
 
 			try {
-				const result = await web.chat.postMessage({
-					channel,
-					text: `${Print.inStock(link, store)}\n${givenUrl}`
-				});
+				const result = await web.chat.postMessage({ channel, text })
 
 				if (!result.ok) {
-					logger.error("✖ couldn't send slack message", result);
+					logger.error("✖ slack api err:", result);
 					return;
 				}
 
@@ -31,5 +29,9 @@ export function sendSlackMessage(link: Link, store: Store) {
 				logger.error("✖ couldn't send slack message", error);
 			}
 		})();
+	} else {
+		logger.error('✖ missing vars...')
+		logger.error(`		- ch: ${ slack.channel }`)
+		logger.error(`		- tkn: ${ slack.token }`)
 	}
 }
